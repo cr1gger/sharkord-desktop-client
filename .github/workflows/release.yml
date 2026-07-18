@@ -1,0 +1,116 @@
+name: Release
+
+# Сборка инсталляторов клиента под Windows, macOS и Linux — одновременно.
+#   • Пуш тега vX.Y.Z          → сборка на всех ОС + публикация GitHub Release.
+#   • Пуш в ветку ci/**        → только сборка (проверка перед релизом, без публикации).
+#   • Ручной запуск (dispatch) → только сборка.
+#
+# Выпуск релиза:
+#   git tag v1.1.0 && git push origin v1.1.0
+#
+# Артефакты:
+#   Windows → Sharkord-<ver>-x64.exe (NSIS-установщик) + latest.yml
+#   Linux   → Sharkord-<ver>-x64.AppImage           + latest-linux.yml
+#   macOS   → Sharkord-<ver>-x64.dmg (+ .zip)        + latest-mac.yml
+# Клиенты на Windows/Linux обновляются сами (electron-updater читает latest*.yml
+# из последнего релиза). macOS-сборка без подписи — ставится вручную.
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - 'ci/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write # нужно для создания релиза
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: Синхронизация версии с тегом
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          npm version "$VER" --no-git-tag-version --allow-same-version
+
+      - name: Сборка инсталлятора (electron-builder)
+        shell: bash
+        run: |
+          npm run gen-icons
+          npx --no-install electron-builder --publish never
+
+      - name: Содержимое release/
+        shell: bash
+        run: ls -la release
+
+      - name: Отбор файлов релиза
+        shell: bash
+        run: |
+          mkdir -p out
+          # ВАЖНО: берём только latest*.yml (метаданные апдейта), НЕ '*.yml' —
+          # иначе попадёт builder-debug.yml, который есть у каждой ОС с одинаковым
+          # именем и ломает загрузку ассетов на релиз (дубль имени).
+          find release -maxdepth 1 -type f \( \
+            -name '*.exe' -o -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' \
+            -o -name 'latest*.yml' -o -name '*.blockmap' \
+            \) -exec cp {} out/ \;
+          ls -la out
+
+      - name: Проверка метаданных авто-обновления (Windows/Linux)
+        if: runner.os != 'macOS'
+        shell: bash
+        run: |
+          # electron-updater на Windows/Linux не заработает без latest*.yml —
+          # падаем сразу, если файла нет.
+          ls out/*.yml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.os }}
+          path: out/**
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Скачивание артефактов всех платформ
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Публикация GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mapfile -t FILES < <(find artifacts -type f | sort)
+          echo "Файлы релиза (${#FILES[@]}):"
+          printf '  %s\n' "${FILES[@]}"
+          # Перевыпуск: если релиз с таким тегом уже существует — удаляем его
+          # (сам git-тег оставляем, он пришёл с пушем). Для первого релиза — no-op.
+          gh release delete "$GITHUB_REF_NAME" --yes --repo "$GITHUB_REPOSITORY" || true
+          gh release create "$GITHUB_REF_NAME" "${FILES[@]}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

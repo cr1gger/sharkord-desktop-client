@@ -1,0 +1,7 @@
+# Нормализуем переводы строк в LF в репозитории (важно для bash-шагов в CI).
+* text=auto eol=lf
+
+# Бинарные ассеты не трогаем.
+*.png binary
+*.ico binary
+*.icns binary

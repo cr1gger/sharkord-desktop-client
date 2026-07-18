@@ -1,0 +1,96 @@
+{
+  "name": "sharkord-client",
+  "version": "1.0.0",
+  "description": "Неофициальный десктоп-клиент для self-hosted чата Sharkord",
+  "main": "src/main.js",
+  "author": "Sharkord Client",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cr1gger/sharkord-desktop-client.git"
+  },
+  "scripts": {
+    "gen-icons": "node scripts/gen-icons.js",
+    "start": "electron .",
+    "pack:portable": "npm run gen-icons && node scripts/pack-portable.js",
+    "pack": "npm run gen-icons && electron-builder --dir",
+    "dist": "npm run gen-icons && electron-builder"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "png-to-ico": "^2.1.8",
+    "png2icons": "^2.0.1"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "build": {
+    "appId": "com.sharkord.client",
+    "productName": "Sharkord",
+    "asar": true,
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "**/*",
+      "!dist/**",
+      "!release/**",
+      "!.github/**",
+      "!scripts/**",
+      "!**/*.md",
+      "!.gitattributes",
+      "!.gitignore"
+    ],
+    "protocols": [
+      {
+        "name": "Sharkord",
+        "schemes": [
+          "sharkord"
+        ]
+      }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "cr1gger",
+        "repo": "sharkord-desktop-client"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Sharkord",
+      "createDesktopShortcut": true
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "assets/icon.icns",
+      "identity": null,
+      "category": "public.app-category.social-networking"
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "assets/icon.png",
+      "category": "Network",
+      "maintainer": "Sharkord Client <snekman38@gmail.com>",
+      "synopsis": "Десктоп-клиент Sharkord"
+    }
+  }
+}

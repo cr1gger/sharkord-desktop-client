@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'" />
+  <title>Sharkord</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============ Экран 0: обновление при запуске ============ -->
+  <section id="screen-updating" class="screen center">
+    <div class="updating-box">
+      <div class="logo up-logo">
+        <svg viewBox="0 0 256 256" width="88" height="88" aria-hidden="true">
+          <defs>
+            <linearGradient id="gu" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2f81f7"/><stop offset="1" stop-color="#0b3a8f"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#gu)"/>
+          <path d="M64 74h128a20 20 0 0 1 20 20v58a20 20 0 0 1-20 20h-58l-34 30v-30H64a20 20 0 0 1-20-20V94a20 20 0 0 1 20-20z" fill="#0d1b3e" opacity="0.35"/>
+          <path d="M132 92c34 6 54 30 60 58-16-12-30-16-46-15 6-14 2-30-14-43z" fill="#eaf2ff"/>
+          <path d="M70 150c10-10 22-10 32 0s22 10 32 0" fill="none" stroke="#8fb6ff" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div id="up-spinner" class="up-spinner"></div>
+      <div id="up-title" class="up-title">Проверка обновлений…</div>
+      <div id="up-sub" class="up-sub"></div>
+      <div id="up-progress" class="up-progress hidden"><div id="up-bar" class="up-bar"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ Экран 1: приветствие ============ -->
+  <section id="screen-welcome" class="screen center">
+    <div class="card welcome">
+      <div class="logo">
+        <svg viewBox="0 0 256 256" width="96" height="96" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2f81f7"/><stop offset="1" stop-color="#0b3a8f"/>
+            </linearGradient>
+          </defs>
+          <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#g1)"/>
+          <path d="M64 74h128a20 20 0 0 1 20 20v58a20 20 0 0 1-20 20h-58l-34 30v-30H64a20 20 0 0 1-20-20V94a20 20 0 0 1 20-20z" fill="#0d1b3e" opacity="0.35"/>
+          <path d="M132 92c34 6 54 30 60 58-16-12-30-16-46-15 6-14 2-30-14-43z" fill="#eaf2ff"/>
+          <path d="M70 150c10-10 22-10 32 0s22 10 32 0" fill="none" stroke="#8fb6ff" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>Sharkord</h1>
+      <p class="subtitle">Десктоп-клиент для вашего self-hosted сервера</p>
+      <button id="btn-start" class="btn primary big">Начать</button>
+      <div class="app-version" id="app-version"></div>
+    </div>
+  </section>
+
+  <!-- ============ Экран 2: подключение / выбор сервера ============ -->
+  <section id="screen-connect" class="screen center">
+    <div class="card connect">
+      <h2>Подключение к серверу</h2>
+
+      <div id="invite-note" class="note hidden">
+        🎟️ У вас есть приглашение — оно применится сразу после подключения.
+      </div>
+
+      <!-- Сохранённые серверы -->
+      <div id="saved-block" class="saved hidden">
+        <label class="field-label">Сохранённые серверы</label>
+        <div class="row">
+          <select id="server-select" class="input"></select>
+          <button id="btn-connect-saved" class="btn primary">Подключиться</button>
+        </div>
+        <div id="server-list" class="server-list"></div>
+        <div class="divider"><span>или добавьте новый</span></div>
+      </div>
+
+      <!-- Новый сервер -->
+      <label class="field-label" for="url-input">Адрес сервера (URL или IP:порт)</label>
+      <input id="url-input" class="input" type="text" spellcheck="false"
+             placeholder="http://192.168.1.50:4991" autocomplete="off" />
+
+      <label class="field-label" for="name-input">Название <span class="muted">(необязательно)</span></label>
+      <input id="name-input" class="input" type="text" spellcheck="false"
+             placeholder="Например: Домашний сервер" autocomplete="off" />
+
+      <div id="connect-error" class="error hidden"></div>
+
+      <div class="actions">
+        <button id="btn-back" class="btn ghost hidden">Назад</button>
+        <button id="btn-connect" class="btn primary">Подключиться</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Экран 3: рабочий (сервер) ============ -->
+  <section id="screen-app" class="screen column">
+    <div class="toolbar">
+      <div class="tb-left">
+        <span id="conn-dot" class="dot"></span>
+        <span id="current-name" class="server-name"></span>
+        <span id="current-url" class="server-url"></span>
+      </div>
+      <div class="tb-right">
+        <button id="btn-reload" class="tb-btn" title="Обновить страницу">⟳</button>
+        <button id="btn-switch" class="btn small outline">Сменить сервер</button>
+      </div>
+    </div>
+    <div class="webview-wrap">
+      <webview id="view" partition="persist:sharkord" allowpopups></webview>
+      <div id="wv-loading" class="wv-overlay hidden">
+        <div class="spinner"></div><span>Загрузка сервера…</span>
+      </div>
+      <div id="wv-error" class="wv-overlay error-overlay hidden">
+        <div class="wv-error-box">
+          <h3>Не удалось загрузить сервер</h3>
+          <p id="wv-error-text" class="muted"></p>
+          <div class="actions center-actions">
+            <button id="btn-retry" class="btn primary">Повторить</button>
+            <button id="btn-switch2" class="btn ghost">Сменить сервер</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Тост автообновления (только для апдейтов, вышедших во время работы) -->
+  <div id="update-banner" class="update-banner hidden">
+    <div id="ub-spinner" class="ub-spinner hidden"></div>
+    <div class="ub-body">
+      <div id="ub-title" class="ub-title">Обновление</div>
+      <div id="ub-sub" class="ub-sub"></div>
+      <div id="ub-progress" class="ub-progress hidden"><div id="ub-bar" class="ub-bar"></div></div>
+    </div>
+    <button id="ub-action" class="btn small primary ub-action hidden">Обновить</button>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
