@@ -1,21 +1,41 @@
 <svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1f6feb"/>
-      <stop offset="1" stop-color="#0b3a8f"/>
-    </linearGradient>
-    <linearGradient id="fin" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#cfe3ff"/>
-    </linearGradient>
-  </defs>
-  <rect x="8" y="8" width="240" height="240" rx="54" fill="url(#bg)"/>
-  <!-- chat bubble -->
-  <path d="M64 74h128a20 20 0 0 1 20 20v58a20 20 0 0 1-20 20h-58l-34 30v-30H64a20 20 0 0 1-20-20V94a20 20 0 0 1 20-20z"
-        fill="#0d1b3e" opacity="0.35"/>
-  <!-- shark fin -->
-  <path d="M132 92c34 6 54 30 60 58-16-12-30-16-46-15 6-14 2-30-14-43z"
-        fill="url(#fin)"/>
-  <!-- waves -->
-  <path d="M70 150c10-10 22-10 32 0s22 10 32 0" fill="none" stroke="#8fb6ff" stroke-width="7" stroke-linecap="round"/>
+  <!-- Маскот Sharkord: злая акула анфас с распахнутой зубастой пастью.
+       Без подложки (прозрачный фон), во весь размер, с тёмной обводкой по
+       контуру — читается и на тёмной, и на светлой панели. Обводка = тёмная
+       копия силуэта/плавников с толстым штрихом, поверх — белая заливка. -->
+  <g transform="translate(128 128) scale(1.26) translate(-128 -125)">
+    <!-- обводка (тёмная «подложка» силуэта + плавников) -->
+    <path d="M68 150 C50 166 44 178 42 184 C60 178 74 173 86 168 Z" fill="#0d1117" stroke="#0d1117" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M188 150 C206 166 212 178 214 184 C196 178 182 173 170 168 Z" fill="#0d1117" stroke="#0d1117" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M128 40 C152 58 196 78 204 122 C210 168 178 210 128 210 C78 210 46 168 52 122 C60 78 104 58 128 40 Z" fill="#0d1117" stroke="#0d1117" stroke-width="12" stroke-linejoin="round"/>
+    <!-- белая заливка плавников и морды -->
+    <path d="M68 150 C50 166 44 178 42 184 C60 178 74 173 86 168 Z" fill="#fff"/>
+    <path d="M188 150 C206 166 212 178 214 184 C196 178 182 173 170 168 Z" fill="#fff"/>
+    <path d="M128 40 C152 58 196 78 204 122 C210 168 178 210 128 210 C78 210 46 168 52 122 C60 78 104 58 128 40 Z" fill="#fff"/>
+    <!-- распахнутая пасть -->
+    <path d="M68 110 Q128 100 188 110 Q190 150 150 166 Q128 172 106 166 Q66 150 68 110 Z" fill="#0d1117"/>
+    <!-- верхний ряд клыков -->
+    <path d="M74.0 110.0 L87.5 106.5 L80.8 130.1 Z" fill="#fff"/>
+    <path d="M87.5 106.5 L101.0 104.0 L94.3 127.1 Z" fill="#fff"/>
+    <path d="M101.0 104.0 L114.5 102.5 L107.8 125.1 Z" fill="#fff"/>
+    <path d="M114.5 102.5 L128.0 102.0 L121.3 124.1 Z" fill="#fff"/>
+    <path d="M128.0 102.0 L141.5 102.5 L134.8 124.1 Z" fill="#fff"/>
+    <path d="M141.5 102.5 L155.0 104.0 L148.3 125.1 Z" fill="#fff"/>
+    <path d="M155.0 104.0 L168.5 106.5 L161.8 127.1 Z" fill="#fff"/>
+    <path d="M168.5 106.5 L182.0 110.0 L175.3 130.1 Z" fill="#fff"/>
+    <!-- нижний ряд клыков -->
+    <path d="M84.0 166.0 L96.6 168.0 L90.3 149.1 Z" fill="#fff"/>
+    <path d="M96.6 168.0 L109.1 169.3 L102.9 150.7 Z" fill="#fff"/>
+    <path d="M109.1 169.3 L121.7 169.9 L115.4 151.7 Z" fill="#fff"/>
+    <path d="M121.7 169.9 L134.3 169.9 L128.0 152.0 Z" fill="#fff"/>
+    <path d="M134.3 169.9 L146.9 169.3 L140.6 151.7 Z" fill="#fff"/>
+    <path d="M146.9 169.3 L159.4 168.0 L153.1 150.7 Z" fill="#fff"/>
+    <path d="M159.4 168.0 L172.0 166.0 L165.7 149.1 Z" fill="#fff"/>
+    <!-- жабры -->
+    <path d="M58 128 q7 8 5 20 M67 126 q7 8 5 20" stroke="#0d1117" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M198 128 q-7 8 -5 20 M189 126 q-7 8 -5 20" stroke="#0d1117" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- злые глаза -->
+    <path d="M72 86 L106 97 L99 110 L70 99 Z" fill="#0d1117"/>
+    <path d="M184 86 L150 97 L157 110 L186 99 Z" fill="#0d1117"/>
+  </g>
 </svg>

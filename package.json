@@ -1,6 +1,6 @@
 {
   "name": "sharkord-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Неофициальный десктоп-клиент для self-hosted чата Sharkord",
   "main": "src/main.js",
   "author": "Sharkord Client",

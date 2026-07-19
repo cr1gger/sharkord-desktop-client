@@ -46,7 +46,13 @@ fs.cpSync(path.join(root, 'renderer'), path.join(appDir, 'renderer'), { recursiv
 
 const assetsOut = path.join(appDir, 'assets');
 fs.mkdirSync(assetsOut, { recursive: true });
-for (const f of ['icon.png', 'icon.ico', 'tray.png', 'tray@2x.png']) {
+for (const f of [
+  'icon.png', 'icon.ico',
+  'tray.png', 'tray@2x.png',
+  'tray-live.png', 'tray-live@2x.png',
+  'tray-mic-off.png', 'tray-mic-off@2x.png',
+  'tray-deafen.png', 'tray-deafen@2x.png',
+]) {
   fs.copyFileSync(path.join(root, 'assets', f), path.join(assetsOut, f));
 }
 

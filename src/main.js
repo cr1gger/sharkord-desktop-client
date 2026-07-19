@@ -146,6 +146,12 @@ function createWindow() {
     },
   });
 
+  // Прикрепляем preload к встраиваемому <webview> с Sharkord: он наблюдает за
+  // состоянием голоса (микрофон/звук/канал) и шлёт его сюда для иконки в трее.
+  mainWindow.webContents.on('will-attach-webview', (_e, webPreferences) => {
+    webPreferences.preload = path.join(__dirname, 'webview-preload.js');
+  });
+
   mainWindow.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
   mainWindow.webContents.on('did-finish-load', () => {
@@ -198,6 +204,51 @@ function createTray() {
 
   tray.setContextMenu(menu);
   tray.on('double-click', showWindow);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Состояние голоса → иконка трея                                     */
+/* ------------------------------------------------------------------ */
+
+const trayIconCache = {};
+// nativeImage.createFromPath сам подхватывает вариант @2x рядом (HiDPI).
+function trayIcon(name) {
+  if (!trayIconCache[name]) {
+    trayIconCache[name] = nativeImage.createFromPath(
+      path.join(ASSETS, `${name}.png`)
+    );
+  }
+  return trayIconCache[name];
+}
+
+function voiceTooltip(s) {
+  if (!s || !s.inVoice) return 'Sharkord';
+  let detail = 'в голосовом канале';
+  if (s.soundMuted) detail = 'звук и микрофон выкл';
+  else if (s.micMuted) detail = 'микрофон выкл';
+  return `Sharkord — ${detail}`;
+}
+
+let lastVoiceKey = null;
+// Вне голосового канала — базовая иконка (mic/sound не важны). В канале:
+// звук выкл (deafen) → наушники, иначе микрофон выкл → микрофон, иначе → кружок.
+function applyVoiceState(state) {
+  if (!tray || tray.isDestroyed()) return;
+  const s = state || {};
+
+  const key = JSON.stringify([!!s.inVoice, !!s.micMuted, !!s.soundMuted]);
+  if (key === lastVoiceKey) return;
+  lastVoiceKey = key;
+
+  let icon = 'tray';
+  if (s.inVoice) {
+    if (s.soundMuted) icon = 'tray-deafen';
+    else if (s.micMuted) icon = 'tray-mic-off';
+    else icon = 'tray-live';
+  }
+
+  tray.setImage(trayIcon(icon));
+  tray.setToolTip(voiceTooltip(s));
 }
 
 function buildMenu() {
@@ -541,3 +592,7 @@ ipcMain.handle('app:getSetting', (_e, key) =>
 );
 
 ipcMain.handle('app:setSetting', (_e, { key, value }) => store.setSetting(key, value));
+
+// Состояние голоса приходит напрямую из webview-preload (Sharkord) —
+// обновляем иконку и тултип трея.
+ipcMain.on('voice:state', (_e, state) => applyVoiceState(state));
